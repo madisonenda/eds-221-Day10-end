@@ -1,0 +1,93 @@
+---
+title: "Madison_Wisconsin_Data"
+author: "Maddy Enda"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+#loading in libraries and data
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(patchwork)
+
+ice_data <- read_csv(here("data","Ice_duration_data.csv"), na = c("-999", "")) %>% 
+  clean_names() 
+
+meteor_data <- read_csv(here("data","Madison_Daily_Meteorological_Data.csv"), na = c("-999", "")) %>% 
+  clean_names() 
+```
+
+
+#creating summary data for ice cover
+```{r}
+
+#visualizing summary data for ice cover
+```{r}
+ggplot(ice_data, aes(x= lakeid, y= ice_duration)) + 
+geom_boxplot() +
+  stat_summary(fun.y= mean, geom= "point", fill= "red", shape= 23, size= 2)
+
+```
+
+#Finding mean ice duration
+```{r}
+ice_data_summary <- ice_data %>%
+  group_by(year4) %>%
+  summarise(mean_ice_duration= mean(ice_duration, na.rm = TRUE)) 
+```
+
+#Visualizing ice data by year
+```{r}
+ggplot(ice_data_summary, aes(x= year4, y= mean_ice_duration)) + geom_line()
+
+#The overall trend appears to be that the average duration of time that ice coverage remains is decreasing over time. 
+```
+
+#Finding Mean Air temp
+```{r}
+madison_air_summary <- meteor_data %>%
+  filter(month %in% c(1,2, 12)) %>%
+  select(ave_air_temp_adjusted, year4, month) %>%
+  group_by(year4) %>%
+  summarize( mean_air_temp= mean(ave_air_temp_adjusted, na.rm= TRUE))
+
+```
+
+#Visualizing Mean air temp
+```{r}
+ggplot(madison_air_summary, aes(x= year4, y= mean_air_temp)) +
+  geom_line()
+
+#The overall trend appears to be that the average air temperature throughout the winter months in Madison is increasing over time
+```
+
+#Joining the data together
+```{r}
+Madison_ice_air_data <- ice_data_summary %>%
+left_join(madison_air_summary)
+```
+
+#Visualizing data
+```{r}
+a <- ggplot(data= Madison_ice_air_data, aes(x= year4, y= mean_air_temp)) +
+  geom_line(color= "aquamarine") +
+  theme_dark()
+
+i <- ggplot(data= Madison_ice_air_data, aes(x= year4, y= mean_ice_duration)) + 
+  geom_line(color= "white") +
+  theme_dark()
+
+madison_air_ice_graph <-(a | i) 
+```
+
+#editing the graph
+```{r}
+madison_air_ice_graph %>%
+ #hi there 
+```
+
+
